@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+  <meta name="description" content="English Island - jogo educativo de inglês para alunos do 6º ano.">
+  <meta name="theme-color" content="#0b4f6c">
+  <title>English Island</title>
+  <!-- Optional font. If there is no internet, the game uses the fallback fonts declared in style.css -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="app">
+
+  <!-- ===================== 1. TITLE SCREEN ===================== -->
+  <section id="screen-title" class="screen screen-title active" aria-labelledby="title-heading">
+    <div class="title-bg" id="title-bg"></div>
+    <div class="title-content">
+      <div class="title-hero" id="title-hero" aria-hidden="true"></div>
+      <h1 id="title-heading" class="logo">
+        <span class="logo-top">English</span>
+        <span class="logo-bottom">Island</span>
+      </h1>
+      <p class="tagline">Explore quatro mundos, aprenda inglês e encontre o tesouro!</p>
+      <button id="btn-play" class="btn btn-big btn-primary" type="button">JOGAR</button>
+      <p class="title-note">Para jovens exploradores &middot; Teclado ou tela de toque</p>
+    </div>
+  </section>
+
+  <!-- ===================== 1b. CHARACTER SELECTION ===================== -->
+  <section id="screen-select" class="screen screen-select" aria-labelledby="select-heading">
+    <div class="select-content">
+      <h2 id="select-heading" class="select-title">Escolha seu personagem</h2>
+      <p class="select-sub">Quem vai explorar a English Island com você?</p>
+      <div class="hero-cards" id="hero-cards" role="radiogroup" aria-label="Personagens"></div>
+      <button id="btn-select-ok" class="btn btn-big btn-primary" type="button">CONTINUAR</button>
+    </div>
+  </section>
+
+  <!-- ===================== 2. INTRODUCTION ===================== -->
+  <section id="screen-intro" class="screen screen-intro" aria-labelledby="intro-heading">
+    <div class="intro-layout">
+      <div class="intro-guide">
+        <div class="speech" aria-live="polite">
+          <p id="intro-text" class="speech-text"></p>
+          <div class="speech-nav">
+            <button id="intro-prev" class="btn btn-small btn-light" type="button">&#9664; Voltar</button>
+            <span id="intro-page" class="speech-page">1/7</span>
+            <button id="intro-next" class="btn btn-small btn-secondary" type="button">Próximo &#9654;</button>
+          </div>
+        </div>
+        <div class="intro-char" id="intro-char" aria-hidden="true"></div>
+      </div>
+
+      <div class="intro-info">
+        <h2 id="intro-heading" class="intro-title">English Island</h2>
+        <div class="info-cards">
+          <article class="info-card">
+            <h3><span class="icon icon-pad" aria-hidden="true"></span>Controles</h3>
+            <ul>
+              <li><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> or <kbd>&#8593;</kbd><kbd>&#8592;</kbd><kbd>&#8595;</kbd><kbd>&#8594;</kbd> para andar</li>
+              <li><kbd>E</kbd> para conversar e interagir</li>
+              <li>Celular: use as setas da tela e o botão <b>FALAR</b></li>
+            </ul>
+          </article>
+          <article class="info-card">
+            <h3><span class="icon icon-heart" aria-hidden="true"></span>Regras</h3>
+            <ul>
+              <li>Cada mundo tem <b>5 perguntas</b>.</li>
+              <li>Você tem <b>2 chances</b> em cada pergunta.</li>
+              <li>Errou duas vezes a <b>mesma</b> pergunta? A aventura recomeça!</li>
+            </ul>
+          </article>
+        </div>
+        <ol class="worlds-row" id="worlds-row" aria-label="Os mundos da aventura"></ol>
+        <button id="btn-start" class="btn btn-big btn-primary" type="button">COMEÇAR AVENTURA</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== 3. EXPLORATION SCREEN ===================== -->
+  <section id="screen-game" class="screen screen-game" aria-label="Jogo">
+    <header class="hud">
+      <div class="hud-brand">English <span>Island</span></div>
+      <div class="hud-level" id="hud-level">NÍVEL 1 &middot; ILHA</div>
+      <ol class="hud-worlds" id="hud-worlds" aria-label="Progresso dos mundos"></ol>
+      <div class="hud-stats">
+        <div class="hud-stat"><span class="hud-label">Perguntas</span><span class="hud-value" id="hud-questions">0/5</span></div>
+        <div class="hud-stat hud-stat-score"><span class="hud-label">Pontos</span><span class="hud-value" id="hud-score">0</span></div>
+        <div class="hud-stat hud-stat-words"><span class="hud-label">Palavras</span><span class="hud-value" id="hud-words">0/12</span></div>
+        <button id="btn-sound" class="hud-btn" type="button" aria-pressed="true" title="Ligar/desligar som">Som: SIM</button>
+        <button id="btn-help" class="hud-btn hud-btn-round" type="button" aria-label="Ajuda">?</button>
+      </div>
+    </header>
+
+    <div class="viewport" id="viewport">
+      <!-- The world is bigger than the screen. The camera follows the player. -->
+      <div class="world" id="world">
+        <img class="world-bg" id="world-bg" alt="" draggable="false">
+        <div class="world-deco" id="world-deco"></div>
+        <div class="entities" id="entities"></div>
+        <div class="sprite player" id="player"></div>
+        <svg class="debug-layer" id="debug-layer" aria-hidden="true"></svg>
+      </div>
+
+      <div class="fx-layer" id="fx-layer" aria-hidden="true"></div>
+      <div class="guide-arrow" id="guide-arrow" aria-hidden="true"></div>
+      <button class="interact-prompt" id="interact-prompt" type="button" tabindex="-1"></button>
+
+      <aside class="mission" id="mission" aria-live="polite">
+        <button class="mission-toggle" id="mission-toggle" type="button" aria-expanded="true">SUA MISSÃO <span aria-hidden="true">&#9662;</span></button>
+        <div class="mission-body" id="mission-body"></div>
+      </aside>
+
+      <div class="level-banner" id="level-banner" aria-live="polite"></div>
+      <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+      <div class="touch-controls" id="touch-controls">
+        <div class="dpad" id="dpad" aria-label="Controle de movimento">
+          <button class="dpad-btn dpad-up" data-dir="up" type="button" aria-label="Cima">&#9650;</button>
+          <button class="dpad-btn dpad-left" data-dir="left" type="button" aria-label="Esquerda">&#9664;</button>
+          <span class="dpad-center" aria-hidden="true"></span>
+          <button class="dpad-btn dpad-right" data-dir="right" type="button" aria-label="Direita">&#9654;</button>
+          <button class="dpad-btn dpad-down" data-dir="down" type="button" aria-label="Baixo">&#9660;</button>
+        </div>
+        <button class="action-btn" id="btn-action" type="button" aria-label="Interagir">FALAR</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== 4. QUESTION PANEL ===================== -->
+  <div class="overlay" id="dialog" hidden>
+    <div class="dialog-box" role="dialog" aria-modal="true" aria-labelledby="dlg-question">
+      <div class="dialog-side">
+        <div class="dialog-portrait" id="dlg-portrait"></div>
+        <div class="dialog-name" id="dlg-name"></div>
+      </div>
+      <div class="dialog-main">
+        <div class="dialog-top">
+          <span class="dialog-tag" id="dlg-tag">PERGUNTA 1 DE 5</span>
+          <span class="chances" id="dlg-chances"></span>
+          <button class="dialog-close" id="dlg-close" type="button" aria-label="Fechar">&#10005;</button>
+        </div>
+        <p class="dialog-greet" id="dlg-greet"></p>
+        <div class="dialog-q-row">
+          <div class="dialog-pic" id="dlg-pic"></div>
+          <h2 class="dialog-question" id="dlg-question"></h2>
+        </div>
+        <div class="hint-row">
+          <button class="btn btn-small btn-light hint-btn" id="dlg-hint-btn" type="button">Dica: ver em português</button>
+          <p class="dialog-hint" id="dlg-hint" hidden></p>
+        </div>
+        <div class="answers" id="dlg-answers"></div>
+        <div class="feedback" id="dlg-feedback" aria-live="assertive"></div>
+        <div class="dialog-actions" id="dlg-actions"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== 5/6. MESSAGES (level completed, boss intro, objects, help) ===================== -->
+  <div class="overlay" id="message" hidden>
+    <div class="message-box" role="dialog" aria-modal="true" aria-labelledby="msg-title">
+      <div class="message-art" id="msg-art"></div>
+      <h2 class="message-title" id="msg-title"></h2>
+      <div class="message-body" id="msg-body"></div>
+      <div class="message-actions" id="msg-actions"></div>
+    </div>
+  </div>
+
+  <!-- ===================== 7. VICTORY ===================== -->
+  <section id="screen-victory" class="screen screen-victory" aria-labelledby="victory-title">
+    <div class="rays" aria-hidden="true"></div>
+    <div class="end-card">
+      <div class="victory-treasure" id="victory-treasure" aria-hidden="true"></div>
+      <h2 id="victory-title" class="end-title">VOCÊ VENCEU!</h2>
+      <p class="end-sub">Parabéns, explorador(a)!</p>
+      <p class="end-text">Você completou os quatro mundos, venceu o Guardião e encontrou o tesouro!</p>
+      <div class="final-score">Pontuação final: <strong id="victory-score">0</strong></div>
+      <ul class="level-summary" id="victory-levels"></ul>
+      <button id="btn-play-again" class="btn btn-big btn-primary" type="button">JOGAR DE NOVO</button>
+    </div>
+    <div class="victory-hero" id="victory-hero" aria-hidden="true"></div>
+  </section>
+
+  <!-- ===================== 8. GAME OVER ===================== -->
+  <section id="screen-gameover" class="screen screen-gameover" aria-labelledby="gameover-title">
+    <div class="end-card end-card-over">
+      <div class="gameover-art" id="gameover-art" aria-hidden="true"></div>
+      <h2 id="gameover-title" class="end-title">FIM DE JOGO!</h2>
+      <p class="end-sub">Você errou duas vezes a mesma pergunta.</p>
+      <div class="gameover-review" id="gameover-review"></div>
+      <p class="end-text">Comece a aventura de novo! Você consegue!</p>
+      <div class="final-score">Pontos: <strong id="gameover-score">0</strong></div>
+      <div class="end-buttons">
+        <button id="btn-restart" class="btn btn-big btn-primary" type="button">RECOMEÇAR</button>
+        <button id="btn-to-title" class="btn btn-light" type="button">Tela inicial</button>
+      </div>
+    </div>
+  </section>
+
+  <div class="curtain" id="curtain" aria-hidden="true"></div>
+  <div class="confetti" id="confetti" aria-hidden="true"></div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
